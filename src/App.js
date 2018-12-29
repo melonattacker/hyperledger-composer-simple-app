@@ -1,28 +1,97 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Client from './Client.js';
 
 class App extends Component {
+  
+  constructor() {
+    super()
+    this.state = {
+      traders: []
+    }
+    this.handleTraderInputChange = this.handleTraderInputChange.bind(this)
+  }
+
+  componentWillMount = () => {
+    this.getTrader()
+  }
+
+  handleTraderInputChange = event => {
+    const {target: {name, value}} = event
+    this.setState({
+      [name]: value
+    });
+  }
+
+  getTrader = async() => {
+    Client.search('Trader')
+    .then(data => {
+      this.setState({
+        traders: data
+      })
+    })
+  }
+
+  submitTrader = () => {
+    const data = {
+      "$class": "org.acme.landowner.Trader",
+      "email": this.state.email,
+      "firstName": this.state.firstName,
+      "lastName": this.state.lastName,
+      "type": this.state.type
+    }
+
+    Client.create('Trader', data)
+    .then(() => {
+      this.getTrader()
+    })
+  }
+
   render() {
-    return (
+    return(
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        <h2>Add Trader</h2>
+        <p>email:</p>
+        <input 
+          onChange={this.handleTraderInputChange}
+          type="text"
+          name="email" />
+        <p>firstName:</p>
+        <input 
+          onChange={this.handleTraderInputChange}
+          type="text"
+          name="firstName" />
+        <p>lastName:</p>
+        <input 
+          onChange={this.handleTraderInputChange}
+          type="text"
+          name="lastName" />
+        <p>type:</p>
+        <input
+          onChange={this.handleTraderInputChange}
+          type="text"
+          name="type" />
+        <button onClick={this.submitTrader}>Create New Trader</button>
+
+        <div style={{justifyContent: 'space-around'}}>
+          <div>
+            <h2>Trader List</h2>
+            {this.state.traders.map((r, i) => (
+              <div 
+                style={{border: '1px solid black'}}
+                key={i}>
+              <p>email: {r.email}</p>
+              <p>firstName: {r.firstName}</p>
+              <p>lastName: {r.lastName}</p>
+              <p>type: {r.type}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    );
+    )
   }
 }
 
 export default App;
+
